@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"golang.org/x/exp/constraints"
 )
 
 // Equal asserts that actual = expected according to the semantics of
@@ -20,6 +22,19 @@ func Equal[T any](t *testing.T, actual, expected T, opts ...cmp.Option) {
 	if diff := cmp.Diff(expected, actual, opts...); diff != "" {
 		t.Errorf("Unexpected value:\n%s\n", diff)
 	}
+}
+
+// EqualUnordered asserts that the actual and expected slices have the same
+// elements, irrespective of order. It's a convenience function for calling
+// expect.Equal with [cmpopts.SortSlices], using < in the lessFunc.
+//
+// [cmpopts.SortSlices]: https://pkg.go.dev/github.com/google/go-cmp/cmp/cmpopts#SortSlices
+func EqualUnordered[Slice ~[]Elem, Elem constraints.Ordered](t *testing.T, actual, expected Slice, opts ...cmp.Option) {
+	t.Helper()
+	opts = append(opts, cmpopts.SortSlices(func(a, b Elem) bool {
+		return a < b
+	}))
+	Equal(t, actual, expected, opts...)
 }
 
 // DeepEqual asserts that actual = expected according to the semantics of
