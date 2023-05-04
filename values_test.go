@@ -38,9 +38,9 @@ func TestEqual(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			tt := new(testing.T)
+			tt := newTMock()
 			Equal(tt, testCase.first, testCase.second)
-			fail := tt.Failed()
+			fail := tt.ErrorfCalled > 0
 			if testCase.fail != fail {
 				t.Errorf("Expected failure: %v\nActual failure: %v", testCase.fail, fail)
 			}

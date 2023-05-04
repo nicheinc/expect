@@ -110,6 +110,18 @@ func TestErrors(t *testing.T) {
 			fail:       true,
 		},
 		{
+			name:       "ErrorIsAll/Empty/Nil",
+			errorCheck: ErrorIsAll(),
+			err:        nil,
+			fail:       false,
+		},
+		{
+			name:       "ErrorIsAll/Empty/ErrTest",
+			errorCheck: ErrorIsAll(),
+			err:        ErrTest,
+			fail:       true,
+		},
+		{
 			name:       "ErrorIsAll/Nil/Nil",
 			errorCheck: ErrorIsAll(nil),
 			err:        nil,
@@ -149,9 +161,9 @@ func TestErrors(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			tt := new(testing.T)
-			testCase.errorCheck(tt, testCase.err)
-			fail := tt.Failed()
+			tMock := newTMock()
+			testCase.errorCheck(tMock, testCase.err)
+			fail := tMock.ErrorfCalled > 0
 			if testCase.fail != fail {
 				t.Errorf("Expected failure: %v\nActual failure: %v", testCase.fail, fail)
 			}
@@ -180,5 +192,12 @@ func (e testErrorB) As(target any) bool {
 		return true
 	default:
 		return false
+	}
+}
+
+func newTMock() *TMock {
+	return &TMock{
+		HelperStub: func() {},
+		ErrorfStub: func(format string, args ...any) {},
 	}
 }

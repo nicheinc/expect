@@ -2,7 +2,6 @@ package expect
 
 import (
 	"errors"
-	"testing"
 )
 
 // ErrTest is an error for use in unit tests when the specific error type
@@ -65,10 +64,10 @@ var ErrTest = errors.New("test error")
 //	}
 //
 // [test helper function]: https://pkg.go.dev/testing#T.Helper
-type ErrorCheck func(*testing.T, error)
+type ErrorCheck func(T, error)
 
 // ErrorNil is an ErrorCheck that an error is nil.
-func ErrorNil(t *testing.T, err error) {
+func ErrorNil(t T, err error) {
 	t.Helper()
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
@@ -76,7 +75,7 @@ func ErrorNil(t *testing.T, err error) {
 }
 
 // ErrorNonNil is an ErrorCheck that an error is non-nil.
-func ErrorNonNil(t *testing.T, err error) {
+func ErrorNonNil(t T, err error) {
 	t.Helper()
 	if err == nil {
 		t.Errorf("Unexpected nil error")
@@ -88,7 +87,7 @@ func ErrorNonNil(t *testing.T, err error) {
 //
 // [errors.Is]: https://pkg.go.dev/errors#Is
 func ErrorIs(expected error) ErrorCheck {
-	return func(t *testing.T, err error) {
+	return func(t T, err error) {
 		t.Helper()
 		if !errors.Is(err, expected) {
 			t.Errorf("Expected error:\n%v\nActual error:\n%v\n", expected, err)
@@ -101,7 +100,7 @@ func ErrorIs(expected error) ErrorCheck {
 //
 // [errors.As]: https://pkg.go.dev/errors#As
 func ErrorAs[Target error]() ErrorCheck {
-	return func(t *testing.T, err error) {
+	return func(t T, err error) {
 		t.Helper()
 		var target Target
 		if !errors.As(err, &target) {
@@ -122,7 +121,7 @@ func ErrorAs[Target error]() ErrorCheck {
 // [errors.Is]: https://pkg.go.dev/errors#Is
 // [errors.Join]: https://pkg.go.dev/errors#Join
 func ErrorIsAll(expected ...error) ErrorCheck {
-	return func(t *testing.T, err error) {
+	return func(t T, err error) {
 		t.Helper()
 		if err != nil && len(expected) == 0 {
 			t.Errorf("Unexpected error:\n%s\n", err)

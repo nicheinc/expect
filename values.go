@@ -2,7 +2,6 @@ package expect
 
 import (
 	"reflect"
-	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -17,7 +16,7 @@ import (
 // [cmp.Equal]: https://pkg.go.dev/github.com/google/go-cmp/cmp#Equal
 // [cmp.Diff]: https://pkg.go.dev/github.com/google/go-cmp/cmp#Diff
 // [cmp.Option documentation]: https://pkg.go.dev/github.com/google/go-cmp/cmp#Option
-func Equal[T any](t *testing.T, actual, expected T, opts ...cmp.Option) {
+func Equal[U any](t T, actual, expected U, opts ...cmp.Option) {
 	t.Helper()
 	if diff := cmp.Diff(expected, actual, opts...); diff != "" {
 		t.Errorf("Unexpected value:\n%s\n", diff)
@@ -29,7 +28,7 @@ func Equal[T any](t *testing.T, actual, expected T, opts ...cmp.Option) {
 // expect.Equal with [cmpopts.SortSlices], using < in the lessFunc.
 //
 // [cmpopts.SortSlices]: https://pkg.go.dev/github.com/google/go-cmp/cmp/cmpopts#SortSlices
-func EqualUnordered[Slice ~[]Elem, Elem constraints.Ordered](t *testing.T, actual, expected Slice, opts ...cmp.Option) {
+func EqualUnordered[Slice ~[]Elem, Elem constraints.Ordered](t T, actual, expected Slice, opts ...cmp.Option) {
 	t.Helper()
 	opts = append(opts, cmpopts.SortSlices(func(a, b Elem) bool {
 		return a < b
@@ -45,7 +44,7 @@ func EqualUnordered[Slice ~[]Elem, Elem constraints.Ordered](t *testing.T, actua
 // types.
 //
 // [reflect.DeepEqual]: https://pkg.go.dev/reflect#DeepEqual
-func DeepEqual[T any](t *testing.T, actual, expected T) {
+func DeepEqual[U any](t T, actual, expected U) {
 	t.Helper()
 	if !reflect.DeepEqual(actual, expected) {
 		t.Errorf("Expected:\n%#v\nActual:\n%#v\n", expected, actual)
