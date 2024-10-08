@@ -133,3 +133,56 @@ func ErrorIsAll(expected ...error) ErrorCheck {
 		}
 	}
 }
+
+// Must can be used on a (value, error) pair to either get the value or
+// immediately fail the test if the error is non-nil. The T parameter is
+// curried, rather than passed as a third argument, so that (value, error)
+// function return values can be passed to Must directly, without assigning them
+// to intermediate variables.
+//
+// See also Must0, Must2, and Must3 for working with functions of other coarity.
+//
+//	bytes := expect.Must(io.ReadAll(reader))(t)
+func Must[V any](value V, err error) func(T) V {
+	return func(t T) V {
+		t.Helper()
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		return value
+	}
+}
+
+// Must0 is similar to Must but for functions returning just an error, without a
+// value.
+func Must0(err error) func(T) {
+	return func(t T) {
+		t.Helper()
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+	}
+}
+
+// Must2 is similar to Must but for functions returning two values and an error.
+func Must2[V1 any, V2 any](value1 V1, value2 V2, err error) func(T) (V1, V2) {
+	return func(t T) (V1, V2) {
+		t.Helper()
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		return value1, value2
+	}
+}
+
+// Must3 is similar to Must but for functions returning three values and an
+// error.
+func Must3[V1 any, V2 any, V3 any](value1 V1, value2 V2, value3 V3, err error) func(T) (V1, V2, V3) {
+	return func(t T) (V1, V2, V3) {
+		t.Helper()
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		return value1, value2, value3
+	}
+}

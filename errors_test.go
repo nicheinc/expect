@@ -171,6 +171,146 @@ func TestErrors(t *testing.T) {
 	}
 }
 
+func TestMust(t *testing.T) {
+	type testCase struct {
+		f                  func() (bool, error)
+		expectedValue      bool
+		expectedFatalCalls int32
+	}
+	run := func(name string, testCase testCase) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			tMock := newTMock()
+			value := Must(testCase.f())(tMock)
+			Equal(t, value, testCase.expectedValue)
+			Equal(t, testCase.expectedFatalCalls, tMock.FatalfCalled)
+		})
+	}
+
+	run("Error", testCase{
+		f: func() (bool, error) {
+			return false, ErrTest
+		},
+		expectedValue:      false,
+		expectedFatalCalls: 1,
+	})
+	run("Success", testCase{
+		f: func() (bool, error) {
+			return true, nil
+		},
+		expectedValue:      true,
+		expectedFatalCalls: 0,
+	})
+}
+
+func TestMust0(t *testing.T) {
+	type testCase struct {
+		f                  func() error
+		expectedFatalCalls int32
+	}
+	run := func(name string, testCase testCase) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			tMock := newTMock()
+			Must0(testCase.f())(tMock)
+			Equal(t, testCase.expectedFatalCalls, tMock.FatalfCalled)
+		})
+	}
+
+	run("Error", testCase{
+		f: func() error {
+			return ErrTest
+		},
+		expectedFatalCalls: 1,
+	})
+	run("Success", testCase{
+		f: func() error {
+			return nil
+		},
+		expectedFatalCalls: 0,
+	})
+}
+
+func TestMust2(t *testing.T) {
+	type testCase struct {
+		f                  func() (bool, bool, error)
+		expectedValue1     bool
+		expectedValue2     bool
+		expectedFatalCalls int32
+	}
+	run := func(name string, testCase testCase) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			tMock := newTMock()
+			value1, value2 := Must2(testCase.f())(tMock)
+			Equal(t, value1, testCase.expectedValue1)
+			Equal(t, value2, testCase.expectedValue2)
+			Equal(t, testCase.expectedFatalCalls, tMock.FatalfCalled)
+		})
+	}
+
+	run("Error", testCase{
+		f: func() (bool, bool, error) {
+			return false, false, ErrTest
+		},
+		expectedValue1:     false,
+		expectedValue2:     false,
+		expectedFatalCalls: 1,
+	})
+	run("Success", testCase{
+		f: func() (bool, bool, error) {
+			return true, true, nil
+		},
+		expectedValue1:     true,
+		expectedValue2:     true,
+		expectedFatalCalls: 0,
+	})
+}
+
+func TestMust3(t *testing.T) {
+	type testCase struct {
+		f                  func() (bool, bool, bool, error)
+		expectedValue1     bool
+		expectedValue2     bool
+		expectedValue3     bool
+		expectedFatalCalls int32
+	}
+	run := func(name string, testCase testCase) {
+		t.Helper()
+		t.Run(name, func(t *testing.T) {
+			t.Helper()
+			tMock := newTMock()
+			value1, value2, value3 := Must3(testCase.f())(tMock)
+			Equal(t, value1, testCase.expectedValue1)
+			Equal(t, value2, testCase.expectedValue2)
+			Equal(t, value3, testCase.expectedValue3)
+			Equal(t, testCase.expectedFatalCalls, tMock.FatalfCalled)
+		})
+	}
+
+	run("Error", testCase{
+		f: func() (bool, bool, bool, error) {
+			return false, false, false, ErrTest
+		},
+		expectedValue1:     false,
+		expectedValue2:     false,
+		expectedValue3:     false,
+		expectedFatalCalls: 1,
+	})
+	run("Success", testCase{
+		f: func() (bool, bool, bool, error) {
+			return true, true, true, nil
+		},
+		expectedValue1:     true,
+		expectedValue2:     true,
+		expectedValue3:     true,
+		expectedFatalCalls: 0,
+	})
+}
+
 type testErrorA struct{}
 
 func (e testErrorA) Error() string {
@@ -199,5 +339,6 @@ func newTMock() *TMock {
 	return &TMock{
 		HelperStub: func() {},
 		ErrorfStub: func(format string, args ...any) {},
+		FatalfStub: func(format string, args ...any) {},
 	}
 }
