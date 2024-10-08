@@ -142,7 +142,7 @@ func ErrorIsAll(expected ...error) ErrorCheck {
 //
 // See also Must0, Must2, and Must3 for working with functions of other coarity.
 //
-//	bytes := expect.Must(t)(io.ReadAll(reader))
+//	bytes := expect.Must(io.ReadAll(reader))(t)
 func Must[V any](value V, err error) func(T) V {
 	return func(t T) V {
 		t.Helper()
